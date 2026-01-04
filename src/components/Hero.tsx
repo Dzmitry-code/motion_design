@@ -7,19 +7,28 @@ import { motion, useScroll } from "framer-motion";
 function ParticleCloud() {
   const count = 6000;
   const meshRef = useRef<THREE.Points>(null!);
-  const { mouse, camera } = useThree();
+  const { mouse, camera, viewport } = useThree(); // Added viewport here
   const { scrollYProgress } = useScroll();
   const raycaster = new THREE.Raycaster();
 
   const [particles, originalPositions] = useMemo(() => {
     const positions = new Float32Array(count * 3);
     const originals = new Float32Array(count * 3);
+
+    // LOGIC: Check if screen width is 'Desktop' size ( > 10 3D units)
+    // Mobile/Tablet keeps radius 3. Desktop gets bumped to 4.5.
+    const isDesktop = viewport.width > 10;
+    const baseRadius = isDesktop ? 4.5 : 3;
+
     for (let i = 0; i < count; i++) {
       const u = Math.random();
       const v = Math.random();
       const theta = 2 * Math.PI * u;
       const phi = Math.acos(2 * v - 1);
-      const r = 3 * Math.cbrt(Math.random());
+
+      // Use the conditional baseRadius here
+      const r = baseRadius * Math.cbrt(Math.random());
+
       const x = r * Math.sin(phi) * Math.cos(theta);
       const y = r * Math.sin(phi) * Math.sin(theta);
       const z = r * Math.cos(phi);
@@ -27,7 +36,7 @@ function ParticleCloud() {
       originals.set([x, y, z], i * 3);
     }
     return [positions, originals];
-  }, []);
+  }, [viewport.width]); // Re-run this if window width changes
 
   useFrame(() => {
     const scrollVal = scrollYProgress.get();
@@ -104,9 +113,6 @@ function ParticleCloud() {
 
 export default function Hero() {
   return (
-    /* Updated to 80vh to ensure 20% visibility of the next section.
-       The 'touch-none' remains to keep the 3D interaction pure in this zone.
-    */
     <section className="relative h-[80vh] w-full bg-black overflow-hidden flex items-center justify-center touch-none">
       <div className="absolute inset-0 z-0">
         <Canvas
