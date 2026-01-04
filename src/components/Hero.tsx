@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 function FloatingObject() {
   const meshRef = useRef<THREE.Mesh>(null!);
 
-  // This makes the object follow the mouse subtly
   useFrame((state) => {
     const { x, y } = state.mouse;
     meshRef.current.rotation.x = THREE.MathUtils.lerp(
@@ -48,7 +47,10 @@ export default function Hero() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          className="text-white text-6xl md:text-9xl font-bold uppercase tracking-tighter"
+          /* FIX: We use 'text-[12vw]' for mobile so it fits the screen width, 
+             and 'md:text-9xl' to return to exactly the desktop look you liked.
+          */
+          className="text-white text-[12vw] md:text-9xl font-bold uppercase tracking-tighter leading-none"
         >
           Defining the Future <br />
           <span className="text-gray-500 italic">of Motion.</span>
