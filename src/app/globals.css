@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
+/* 1. THEME VARIABLES */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a; /* Force dark mode start */
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -12,15 +13,56 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* 2. FORCE HIDE SYSTEM CURSOR (The Nuclear Option) */
+/* We target everything (*) to ensure inputs and textareas don't override it */
+* {
+  cursor: none !important;
 }
 
+/* 3. LENIS SMOOTH SCROLL MECHANICS */
+html.lenis {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* 4. BASE STYLES */
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* 5. STUDIO DESIGN UTILITIES */
+.text-outline {
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.3);
+  color: transparent;
+}
+
+::selection {
+  background: #ffffff;
+  color: #000000;
+}
+
+/* Prevent inputs from showing the default text cursor */
+input,
+textarea {
+  outline: none;
 }
