@@ -104,10 +104,8 @@ function ParticleCloud() {
 
 export default function Hero() {
   return (
-    /* Updated to 80vh to ensure 20% visibility of the next section.
-       The 'touch-none' remains to keep the 3D interaction pure in this zone.
-    */
-    <section className="relative h-[80vh] w-full bg-black overflow-hidden flex items-center justify-center touch-none">
+    /* Set to 70vh for maximum scroll compatibility on mobile */
+    <section className="relative h-[70vh] w-full bg-black overflow-hidden flex items-center justify-center touch-none">
       <div className="absolute inset-0 z-0">
         <Canvas
           camera={{ position: [0, 0, 10], fov: 45 }}
@@ -127,6 +125,31 @@ export default function Hero() {
           Defining the Future <br />
           <span className="text-gray-500 italic">of Motion.</span>
         </motion.h1>
+      </div>
+
+      {/* Animated Scroll Indicator */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none">
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.4 }}
+          transition={{ delay: 2 }}
+          className="text-[10px] uppercase tracking-[0.3em] text-white font-mono"
+        >
+          Scroll
+        </motion.span>
+        <motion.div
+          className="w-[1px] h-12 bg-gradient-to-b from-white to-transparent"
+          animate={{
+            scaleY: [0, 1, 0],
+            translateY: [0, 20, 40],
+            opacity: [0, 1, 0],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
       </div>
     </section>
   );
