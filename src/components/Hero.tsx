@@ -5,37 +5,29 @@ import * as THREE from "three";
 import { motion, useScroll } from "framer-motion";
 
 function ParticleCloud() {
-  const count = 8000;
+  const count = 6000;
   const meshRef = useRef<THREE.Points>(null!);
-  const { mouse, camera, viewport } = useThree();
+  const { mouse, camera } = useThree();
   const { scrollYProgress } = useScroll();
   const raycaster = new THREE.Raycaster();
 
   const [particles, originalPositions] = useMemo(() => {
     const positions = new Float32Array(count * 3);
     const originals = new Float32Array(count * 3);
-
-    // SMART RADIUS LOGIC:
-    // If width < 10 (Mobile/Tablet): Use fixed size (2.2) to fill the phone screen.
-    // If width >= 10 (Desktop): Use 35% of screen width to keep it contained.
-    const sphereRadius = viewport.width < 10 ? 2.2 : viewport.width * 0.35;
-
     for (let i = 0; i < count; i++) {
       const u = Math.random();
       const v = Math.random();
       const theta = 2 * Math.PI * u;
       const phi = Math.acos(2 * v - 1);
-      const r = sphereRadius * Math.cbrt(Math.random());
-
+      const r = 3 * Math.cbrt(Math.random());
       const x = r * Math.sin(phi) * Math.cos(theta);
       const y = r * Math.sin(phi) * Math.sin(theta);
       const z = r * Math.cos(phi);
-
       positions.set([x, y, z], i * 3);
       originals.set([x, y, z], i * 3);
     }
     return [positions, originals];
-  }, [viewport.width]);
+  }, []);
 
   useFrame(() => {
     const scrollVal = scrollYProgress.get();
@@ -53,7 +45,6 @@ function ParticleCloud() {
         positions[i3 + 2]
       );
       vPos.applyMatrix4(meshRef.current.matrixWorld);
-
       const closestPointOnRay = new THREE.Vector3();
       ray.closestPointToPoint(vPos, closestPointOnRay);
       const dist = vPos.distanceTo(closestPointOnRay);
@@ -85,10 +76,8 @@ function ParticleCloud() {
     }
 
     meshRef.current.geometry.attributes.position.needsUpdate = true;
-
-    // Animation: Spin faster as you scroll down
-    meshRef.current.rotation.y += 0.001 + scrollVal * 0.05;
-    meshRef.current.rotation.z = scrollVal * 0.2;
+    meshRef.current.rotation.y += 0.0015;
+    meshRef.current.rotation.x += 0.0008;
   });
 
   return (
@@ -103,10 +92,10 @@ function ParticleCloud() {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.035}
+        size={0.025}
         color="#FFFFFF"
         transparent
-        opacity={0.6}
+        opacity={0.5}
         sizeAttenuation={true}
       />
     </points>
@@ -115,6 +104,9 @@ function ParticleCloud() {
 
 export default function Hero() {
   return (
+    /* Updated to 80vh to ensure 20% visibility of the next section.
+       The 'touch-none' remains to keep the 3D interaction pure in this zone.
+    */
     <section className="relative h-[80vh] w-full bg-black overflow-hidden flex items-center justify-center touch-none">
       <div className="absolute inset-0 z-0">
         <Canvas
@@ -125,12 +117,12 @@ export default function Hero() {
         </Canvas>
       </div>
 
-      <div className="relative z-10 text-center px-4 pointer-events-none w-full">
+      <div className="relative z-10 text-center px-4 pointer-events-none">
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-          className="text-white font-bold uppercase tracking-tighter leading-[0.8] text-[14vw] md:text-[12vw] lg:text-[10vw]"
+          className="text-white text-[12vw] md:text-9xl font-bold uppercase tracking-tighter leading-none"
         >
           Defining the Future <br />
           <span className="text-gray-500 italic">of Motion.</span>
