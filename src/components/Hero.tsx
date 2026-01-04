@@ -5,8 +5,6 @@ import * as THREE from "three";
 import { motion, useScroll } from "framer-motion";
 
 function ParticleCloud() {
-  // ... (Keep your existing ParticleCloud logic exactly as it is)
-  // No changes needed inside this function!
   const count = 6000;
   const meshRef = useRef<THREE.Points>(null!);
   const { mouse, camera } = useThree();
@@ -35,6 +33,7 @@ function ParticleCloud() {
     const scrollVal = scrollYProgress.get();
     const positions = meshRef.current.geometry.attributes.position
       .array as Float32Array;
+
     raycaster.setFromCamera(mouse, camera);
     const ray = raycaster.ray;
 
@@ -49,9 +48,11 @@ function ParticleCloud() {
       const closestPointOnRay = new THREE.Vector3();
       ray.closestPointToPoint(vPos, closestPointOnRay);
       const dist = vPos.distanceTo(closestPointOnRay);
+
       const ox = originalPositions[i3];
       const oy = originalPositions[i3 + 1];
       const oz = originalPositions[i3 + 2];
+
       const force = 2.0;
       const radius = 0.8;
 
@@ -64,6 +65,7 @@ function ParticleCloud() {
         positions[i3 + 1] = localPos.y;
         positions[i3 + 2] = localPos.z;
       }
+
       positions[i3] = THREE.MathUtils.lerp(positions[i3], ox, 0.1);
       positions[i3 + 1] = THREE.MathUtils.lerp(positions[i3 + 1], oy, 0.1);
       positions[i3 + 2] = THREE.MathUtils.lerp(
@@ -72,6 +74,7 @@ function ParticleCloud() {
         0.1
       );
     }
+
     meshRef.current.geometry.attributes.position.needsUpdate = true;
     meshRef.current.rotation.y += 0.0015;
     meshRef.current.rotation.x += 0.0008;
@@ -101,17 +104,14 @@ function ParticleCloud() {
 
 export default function Hero() {
   return (
-    /* 1. REMOVED 'touch-none'. This allows natural scrolling back. */
-    <section className="relative h-screen w-full bg-black overflow-hidden flex items-center justify-center">
+    /* FIX: Changed 'h-screen' to 'h-[90vh]'. 
+      'touch-none' is now safely back because users can scroll from the bottom 10%.
+    */
+    <section className="relative h-[90vh] w-full bg-black overflow-hidden flex items-center justify-center touch-none">
       <div className="absolute inset-0 z-0">
         <Canvas
           camera={{ position: [0, 0, 10], fov: 45 }}
           gl={{ antialias: true }}
-          /* 2. Set touchAction to 'pan-y'. 
-             This tells the browser: "The canvas can handle left/right or taps, 
-             but if the user moves UP or DOWN, let the page scroll." 
-          */
-          style={{ touchAction: "pan-y" }}
         >
           <ParticleCloud />
         </Canvas>
