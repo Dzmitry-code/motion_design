@@ -104,10 +104,10 @@ function ParticleCloud() {
 
 export default function Hero() {
   return (
-    /* FIX: Changed 'h-screen' to 'h-[90vh]'. 
-      'touch-none' is now safely back because users can scroll from the bottom 10%.
+    /* Updated to 80vh to ensure 20% visibility of the next section.
+       The 'touch-none' remains to keep the 3D interaction pure in this zone.
     */
-    <section className="relative h-[90vh] w-full bg-black overflow-hidden flex items-center justify-center touch-none">
+    <section className="relative h-[80vh] w-full bg-black overflow-hidden flex items-center justify-center touch-none">
       <div className="absolute inset-0 z-0">
         <Canvas
           camera={{ position: [0, 0, 10], fov: 45 }}
@@ -125,7 +125,7 @@ export default function Hero() {
           className="text-white text-[12vw] md:text-9xl font-bold uppercase tracking-tighter leading-none"
         >
           Defining the Future <br />
-          <span className="text-gray-500 italic">of Motion Design.</span>
+          <span className="text-gray-500 italic">of Motion.</span>
         </motion.h1>
       </div>
     </section>
