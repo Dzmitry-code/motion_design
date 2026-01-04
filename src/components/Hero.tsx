@@ -104,7 +104,6 @@ function ParticleCloud() {
 
 export default function Hero() {
   return (
-    /* Set to 70vh for maximum scroll compatibility on mobile */
     <section className="relative h-[70vh] w-full bg-black overflow-hidden flex items-center justify-center touch-none">
       <div className="absolute inset-0 z-0">
         <Canvas
@@ -127,29 +126,16 @@ export default function Hero() {
         </motion.h1>
       </div>
 
-      {/* Animated Scroll Indicator */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none">
+      {/* Hero Only has the Scroll Text at the bottom */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 pointer-events-none">
         <motion.span
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.4 }}
-          transition={{ delay: 2 }}
-          className="text-[10px] uppercase tracking-[0.3em] text-white font-mono"
+          transition={{ delay: 2, duration: 1 }}
+          className="text-[10px] uppercase tracking-[0.4em] text-white font-mono"
         >
           Scroll
         </motion.span>
-        <motion.div
-          className="w-[1px] h-12 bg-gradient-to-b from-white to-transparent"
-          animate={{
-            scaleY: [0, 1, 0],
-            translateY: [0, 20, 40],
-            opacity: [0, 1, 0],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
       </div>
     </section>
   );
