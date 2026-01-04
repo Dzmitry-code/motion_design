@@ -86,8 +86,10 @@ function ParticleCloud() {
         <bufferAttribute
           attach="attributes-position"
           count={count}
-          array={particles}
           itemSize={3}
+          array={particles}
+          // Adding args helps TypeScript understand the constructor call
+          args={[particles, 3]}
         />
       </bufferGeometry>
       <pointsMaterial
