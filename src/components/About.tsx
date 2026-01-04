@@ -4,11 +4,14 @@ import { motion } from "framer-motion";
 export default function About() {
   return (
     <section className="relative py-40 px-8 bg-white text-black overflow-visible">
-      {/* Scroll Indicator - Moved here from Hero */}
-      <div className="absolute top-12 left-1/2 -translate-x-1/2 pointer-events-none">
+      {/* SCROLL INDICATOR
+         Position: -top-12 (Pulls it UP into the black Hero section)
+         Color: text-white (To contrast against the black Hero background)
+      */}
+      <div className="absolute -top-12 left-1/2 -translate-x-1/2 pointer-events-none">
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 0.5, 0] }}
+          animate={{ opacity: [0, 1, 0] }}
           transition={{
             duration: 3,
             repeat: Infinity,
@@ -16,11 +19,11 @@ export default function About() {
           }}
           className="flex flex-col items-center gap-2"
         >
-          <span className="text-[10px] uppercase tracking-[0.4em] text-neutral-900 font-mono">
+          <span className="text-[10px] uppercase tracking-[0.4em] text-white font-mono">
             Scroll
           </span>
-          {/* Optional: Small line to point down into the text */}
-          <div className="w-[1px] h-8 bg-neutral-300"></div>
+          {/* A small white line pointing down towards the About section */}
+          <div className="w-[1px] h-6 bg-white/50"></div>
         </motion.div>
       </div>
 

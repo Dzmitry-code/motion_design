@@ -15,8 +15,10 @@ function ParticleCloud() {
     const positions = new Float32Array(count * 3);
     const originals = new Float32Array(count * 3);
 
-    // FIX: Reduced to 40% of viewport width (0.4) for a smaller, contained look
-    const sphereRadius = (viewport.width * 0.4) / 2;
+    // SMART RADIUS LOGIC:
+    // If width < 10 (Mobile/Tablet): Use fixed size (2.2) to fill the phone screen.
+    // If width >= 10 (Desktop): Use 35% of screen width to keep it contained.
+    const sphereRadius = viewport.width < 10 ? 2.2 : viewport.width * 0.35;
 
     for (let i = 0; i < count; i++) {
       const u = Math.random();
@@ -73,10 +75,8 @@ function ParticleCloud() {
         positions[i3 + 2] = localPos.z;
       }
 
-      // Smoothly return to original position
       positions[i3] = THREE.MathUtils.lerp(positions[i3], ox, 0.1);
       positions[i3 + 1] = THREE.MathUtils.lerp(positions[i3 + 1], oy, 0.1);
-      // Move particles back based on scroll
       positions[i3 + 2] = THREE.MathUtils.lerp(
         positions[i3 + 2],
         oz + scrollVal * -5,
@@ -86,10 +86,9 @@ function ParticleCloud() {
 
     meshRef.current.geometry.attributes.position.needsUpdate = true;
 
-    // NEW ANIMATION: Accelerate rotation and tilt based on scroll depth
-    // Base speed + (Scroll Value * Multiplier)
+    // Animation: Spin faster as you scroll down
     meshRef.current.rotation.y += 0.001 + scrollVal * 0.05;
-    meshRef.current.rotation.z = scrollVal * 0.2; // Subtle tilt as you scroll down
+    meshRef.current.rotation.z = scrollVal * 0.2;
   });
 
   return (
