@@ -125,7 +125,7 @@ export default function Hero() {
           className="text-white text-[12vw] md:text-9xl font-bold uppercase tracking-tighter leading-none"
         >
           Defining the Future <br />
-          <span className="text-gray-500 italic">of Motion.</span>
+          <span className="text-gray-500 italic">of Motion Design.</span>
         </motion.h1>
       </div>
     </section>
