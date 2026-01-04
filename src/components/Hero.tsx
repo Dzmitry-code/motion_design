@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { motion, useScroll } from "framer-motion";
 
 function ParticleCloud() {
-  const count = 6000; // Increased density for better volume feel
+  const count = 6000;
   const meshRef = useRef<THREE.Points>(null!);
   const { mouse, camera } = useThree();
   const { scrollYProgress } = useScroll();
@@ -15,12 +15,11 @@ function ParticleCloud() {
     const positions = new Float32Array(count * 3);
     const originals = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      // Sphere distribution
       const u = Math.random();
       const v = Math.random();
       const theta = 2 * Math.PI * u;
       const phi = Math.acos(2 * v - 1);
-      const r = 3 * Math.cbrt(Math.random()); // Cubed root for uniform density inside volume
+      const r = 3 * Math.cbrt(Math.random());
 
       const x = r * Math.sin(phi) * Math.cos(theta);
       const y = r * Math.sin(phi) * Math.sin(theta);
@@ -37,14 +36,15 @@ function ParticleCloud() {
     const positions = meshRef.current.geometry.attributes.position
       .array as Float32Array;
 
-    // 1. Setup Raycaster from Mouse
+    // We only calculate repulsion if the mouse/finger is actually on the screen
+    // On mobile, if no one is touching, mouse.x and mouse.y often stay at their last position.
+    // We can add a check or just let the lerp handle the "return"
+
     raycaster.setFromCamera(mouse, camera);
     const ray = raycaster.ray;
 
     for (let i = 0; i < count; i++) {
       const i3 = i * 3;
-
-      // Get current local position and convert to world for ray math
       const vPos = new THREE.Vector3(
         positions[i3],
         positions[i3 + 1],
@@ -52,7 +52,6 @@ function ParticleCloud() {
       );
       vPos.applyMatrix4(meshRef.current.matrixWorld);
 
-      // 2. Calculate closest point on the ray to this specific particle
       const closestPointOnRay = new THREE.Vector3();
       ray.closestPointToPoint(vPos, closestPointOnRay);
 
@@ -62,15 +61,12 @@ function ParticleCloud() {
       const oy = originalPositions[i3 + 1];
       const oz = originalPositions[i3 + 2];
 
-      const force = 1.8;
+      const force = 2.0; // Slightly stronger for touch
       const radius = 0.8;
 
       if (dist < radius) {
-        // 3. Repulsion Direction: Away from the ray line
         const dir = vPos.clone().sub(closestPointOnRay).normalize();
         const push = (radius - dist) * force;
-
-        // Apply push in world space, then convert back to local
         vPos.add(dir.multiplyScalar(push));
         const localPos = meshRef.current.worldToLocal(vPos);
 
@@ -79,7 +75,7 @@ function ParticleCloud() {
         positions[i3 + 2] = localPos.z;
       }
 
-      // 4. Smoothly pull back to original + scroll depth
+      // Smoothly pull back
       positions[i3] = THREE.MathUtils.lerp(positions[i3], ox, 0.1);
       positions[i3 + 1] = THREE.MathUtils.lerp(positions[i3 + 1], oy, 0.1);
       positions[i3 + 2] = THREE.MathUtils.lerp(
@@ -106,7 +102,7 @@ function ParticleCloud() {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.018}
+        size={0.025} // Slightly larger dots look better on mobile screens
         color="#FFFFFF"
         transparent
         opacity={0.5}
@@ -118,15 +114,21 @@ function ParticleCloud() {
 
 export default function Hero() {
   return (
-    <section className="relative h-screen w-full bg-black overflow-hidden flex items-center justify-center">
+    <section className="relative h-screen w-full bg-black overflow-hidden flex items-center justify-center touch-none">
+      {/* 'touch-none' above prevents the browser from scrolling the whole page 
+         while your finger is moving the particles. 
+      */}
       <div className="absolute inset-0 z-0">
         <Canvas
           camera={{ position: [0, 0, 10], fov: 45 }}
           gl={{ antialias: true }}
+          // This tells R3F to listen to touch events
+          style={{ touchAction: "none" }}
         >
           <ParticleCloud />
         </Canvas>
       </div>
+
       <div className="relative z-10 text-center px-4 pointer-events-none">
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
