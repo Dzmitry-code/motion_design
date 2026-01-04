@@ -5,6 +5,8 @@ import * as THREE from "three";
 import { motion, useScroll } from "framer-motion";
 
 function ParticleCloud() {
+  // ... (Keep your existing ParticleCloud logic exactly as it is)
+  // No changes needed inside this function!
   const count = 6000;
   const meshRef = useRef<THREE.Points>(null!);
   const { mouse, camera } = useThree();
@@ -20,11 +22,9 @@ function ParticleCloud() {
       const theta = 2 * Math.PI * u;
       const phi = Math.acos(2 * v - 1);
       const r = 3 * Math.cbrt(Math.random());
-
       const x = r * Math.sin(phi) * Math.cos(theta);
       const y = r * Math.sin(phi) * Math.sin(theta);
       const z = r * Math.cos(phi);
-
       positions.set([x, y, z], i * 3);
       originals.set([x, y, z], i * 3);
     }
@@ -35,11 +35,6 @@ function ParticleCloud() {
     const scrollVal = scrollYProgress.get();
     const positions = meshRef.current.geometry.attributes.position
       .array as Float32Array;
-
-    // We only calculate repulsion if the mouse/finger is actually on the screen
-    // On mobile, if no one is touching, mouse.x and mouse.y often stay at their last position.
-    // We can add a check or just let the lerp handle the "return"
-
     raycaster.setFromCamera(mouse, camera);
     const ray = raycaster.ray;
 
@@ -51,17 +46,13 @@ function ParticleCloud() {
         positions[i3 + 2]
       );
       vPos.applyMatrix4(meshRef.current.matrixWorld);
-
       const closestPointOnRay = new THREE.Vector3();
       ray.closestPointToPoint(vPos, closestPointOnRay);
-
       const dist = vPos.distanceTo(closestPointOnRay);
-
       const ox = originalPositions[i3];
       const oy = originalPositions[i3 + 1];
       const oz = originalPositions[i3 + 2];
-
-      const force = 2.0; // Slightly stronger for touch
+      const force = 2.0;
       const radius = 0.8;
 
       if (dist < radius) {
@@ -69,13 +60,10 @@ function ParticleCloud() {
         const push = (radius - dist) * force;
         vPos.add(dir.multiplyScalar(push));
         const localPos = meshRef.current.worldToLocal(vPos);
-
         positions[i3] = localPos.x;
         positions[i3 + 1] = localPos.y;
         positions[i3 + 2] = localPos.z;
       }
-
-      // Smoothly pull back
       positions[i3] = THREE.MathUtils.lerp(positions[i3], ox, 0.1);
       positions[i3 + 1] = THREE.MathUtils.lerp(positions[i3 + 1], oy, 0.1);
       positions[i3 + 2] = THREE.MathUtils.lerp(
@@ -84,7 +72,6 @@ function ParticleCloud() {
         0.1
       );
     }
-
     meshRef.current.geometry.attributes.position.needsUpdate = true;
     meshRef.current.rotation.y += 0.0015;
     meshRef.current.rotation.x += 0.0008;
@@ -102,7 +89,7 @@ function ParticleCloud() {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.025} // Slightly larger dots look better on mobile screens
+        size={0.025}
         color="#FFFFFF"
         transparent
         opacity={0.5}
@@ -114,16 +101,17 @@ function ParticleCloud() {
 
 export default function Hero() {
   return (
-    <section className="relative h-screen w-full bg-black overflow-hidden flex items-center justify-center touch-none">
-      {/* 'touch-none' above prevents the browser from scrolling the whole page 
-         while your finger is moving the particles. 
-      */}
+    /* 1. REMOVED 'touch-none'. This allows natural scrolling back. */
+    <section className="relative h-screen w-full bg-black overflow-hidden flex items-center justify-center">
       <div className="absolute inset-0 z-0">
         <Canvas
           camera={{ position: [0, 0, 10], fov: 45 }}
           gl={{ antialias: true }}
-          // This tells R3F to listen to touch events
-          style={{ touchAction: "none" }}
+          /* 2. Set touchAction to 'pan-y'. 
+             This tells the browser: "The canvas can handle left/right or taps, 
+             but if the user moves UP or DOWN, let the page scroll." 
+          */
+          style={{ touchAction: "pan-y" }}
         >
           <ParticleCloud />
         </Canvas>
