@@ -4,30 +4,33 @@ import { motion } from "framer-motion";
 export default function About() {
   return (
     <section className="relative py-40 px-8 bg-white text-black overflow-visible">
-      {/* Visual Bridge: The Animated Line positioned at the top of About */}
-      <div className="absolute -top-12 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none">
+      {/* Scroll Indicator - Moved here from Hero */}
+      <div className="absolute top-12 left-1/2 -translate-x-1/2 pointer-events-none">
         <motion.div
-          className="w-[1px] h-24 bg-gradient-to-b from-white via-neutral-400 to-transparent"
-          animate={{
-            scaleY: [0, 1, 0],
-            translateY: [-20, 0, 20],
-            opacity: [0, 1, 0],
-          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, 0.5, 0] }}
           transition={{
-            duration: 2.5,
+            duration: 3,
             repeat: Infinity,
             ease: "easeInOut",
           }}
-        />
+          className="flex flex-col items-center gap-2"
+        >
+          <span className="text-[10px] uppercase tracking-[0.4em] text-neutral-900 font-mono">
+            Scroll
+          </span>
+          {/* Optional: Small line to point down into the text */}
+          <div className="w-[1px] h-8 bg-neutral-300"></div>
+        </motion.div>
       </div>
 
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl">
         <motion.p
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-4xl md:text-6xl font-medium leading-tight tracking-tight text-center md:text-left"
+          className="text-4xl md:text-6xl font-medium leading-tight tracking-tight"
         >
           We are a motion design studio focused on the intersection of
           <span className="text-neutral-400"> digital art </span> and

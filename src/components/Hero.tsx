@@ -5,29 +5,35 @@ import * as THREE from "three";
 import { motion, useScroll } from "framer-motion";
 
 function ParticleCloud() {
-  const count = 6000;
+  const count = 8000;
   const meshRef = useRef<THREE.Points>(null!);
-  const { mouse, camera } = useThree();
+  const { mouse, camera, viewport } = useThree();
   const { scrollYProgress } = useScroll();
   const raycaster = new THREE.Raycaster();
 
   const [particles, originalPositions] = useMemo(() => {
     const positions = new Float32Array(count * 3);
     const originals = new Float32Array(count * 3);
+
+    // FIX: Reduced to 40% of viewport width (0.4) for a smaller, contained look
+    const sphereRadius = (viewport.width * 0.4) / 2;
+
     for (let i = 0; i < count; i++) {
       const u = Math.random();
       const v = Math.random();
       const theta = 2 * Math.PI * u;
       const phi = Math.acos(2 * v - 1);
-      const r = 3 * Math.cbrt(Math.random());
+      const r = sphereRadius * Math.cbrt(Math.random());
+
       const x = r * Math.sin(phi) * Math.cos(theta);
       const y = r * Math.sin(phi) * Math.sin(theta);
       const z = r * Math.cos(phi);
+
       positions.set([x, y, z], i * 3);
       originals.set([x, y, z], i * 3);
     }
     return [positions, originals];
-  }, []);
+  }, [viewport.width]);
 
   useFrame(() => {
     const scrollVal = scrollYProgress.get();
@@ -45,6 +51,7 @@ function ParticleCloud() {
         positions[i3 + 2]
       );
       vPos.applyMatrix4(meshRef.current.matrixWorld);
+
       const closestPointOnRay = new THREE.Vector3();
       ray.closestPointToPoint(vPos, closestPointOnRay);
       const dist = vPos.distanceTo(closestPointOnRay);
@@ -66,8 +73,10 @@ function ParticleCloud() {
         positions[i3 + 2] = localPos.z;
       }
 
+      // Smoothly return to original position
       positions[i3] = THREE.MathUtils.lerp(positions[i3], ox, 0.1);
       positions[i3 + 1] = THREE.MathUtils.lerp(positions[i3 + 1], oy, 0.1);
+      // Move particles back based on scroll
       positions[i3 + 2] = THREE.MathUtils.lerp(
         positions[i3 + 2],
         oz + scrollVal * -5,
@@ -76,8 +85,11 @@ function ParticleCloud() {
     }
 
     meshRef.current.geometry.attributes.position.needsUpdate = true;
-    meshRef.current.rotation.y += 0.0015;
-    meshRef.current.rotation.x += 0.0008;
+
+    // NEW ANIMATION: Accelerate rotation and tilt based on scroll depth
+    // Base speed + (Scroll Value * Multiplier)
+    meshRef.current.rotation.y += 0.001 + scrollVal * 0.05;
+    meshRef.current.rotation.z = scrollVal * 0.2; // Subtle tilt as you scroll down
   });
 
   return (
@@ -92,10 +104,10 @@ function ParticleCloud() {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.025}
+        size={0.035}
         color="#FFFFFF"
         transparent
-        opacity={0.5}
+        opacity={0.6}
         sizeAttenuation={true}
       />
     </points>
@@ -104,7 +116,7 @@ function ParticleCloud() {
 
 export default function Hero() {
   return (
-    <section className="relative h-[70vh] w-full bg-black overflow-hidden flex items-center justify-center touch-none">
+    <section className="relative h-[80vh] w-full bg-black overflow-hidden flex items-center justify-center touch-none">
       <div className="absolute inset-0 z-0">
         <Canvas
           camera={{ position: [0, 0, 10], fov: 45 }}
@@ -114,28 +126,16 @@ export default function Hero() {
         </Canvas>
       </div>
 
-      <div className="relative z-10 text-center px-4 pointer-events-none">
+      <div className="relative z-10 text-center px-4 pointer-events-none w-full">
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-          className="text-white text-[12vw] md:text-9xl font-bold uppercase tracking-tighter leading-none"
+          className="text-white font-bold uppercase tracking-tighter leading-[0.8] text-[14vw] md:text-[12vw] lg:text-[10vw]"
         >
           Defining the Future <br />
           <span className="text-gray-500 italic">of Motion.</span>
         </motion.h1>
-      </div>
-
-      {/* Hero Only has the Scroll Text at the bottom */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 pointer-events-none">
-        <motion.span
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.4 }}
-          transition={{ delay: 2, duration: 1 }}
-          className="text-[10px] uppercase tracking-[0.4em] text-white font-mono"
-        >
-          Scroll
-        </motion.span>
       </div>
     </section>
   );
